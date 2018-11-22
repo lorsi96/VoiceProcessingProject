@@ -1,0 +1,916 @@
+#LyX 2.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 508
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize a4paper
+\use_geometry true
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\rightmargin 3cm
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Section
+Detección de Fundamental y Síntesis MIDI
+\end_layout
+
+\begin_layout Subsection
+Introducción
+\end_layout
+
+\begin_layout Standard
+El objetivo de este inciso del proyecto es presentar y detallar los métodos
+ y técnicas utilizadas para lograr una detección precisa del 
+\begin_inset Quotes eld
+\end_inset
+
+pitch
+\begin_inset Quotes erd
+\end_inset
+
+ en melodías vocales grabadas 
+\begin_inset Quotes eld
+\end_inset
+
+a capella
+\begin_inset Quotes erd
+\end_inset
+
+ para su posterior conversión a formato midi con el fin de poder no solo
+ transcribirlas musicalmente, sino también reproducirlas con diversos instrument
+os musicales.
+\end_layout
+
+\begin_layout Standard
+A continuación se muestra un diagrama del conjunto de herramientas utilizadas
+ para lograr el objetivo mencionado.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename Diagramas/EsquemaGeneral.png
+	width 90line%
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Esquema General
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+En resumen, los pasos que sigue el método propuesto para lograr la detección
+ son los siguientes:
+\end_layout
+
+\begin_layout Itemize
+Determinación de segmentos de audio con/sin voz/silbidos/sonidos armónicos
+\end_layout
+
+\begin_layout Itemize
+Estimación robusta de la frecuencia fundamental de la señal entrante
+\end_layout
+
+\begin_layout Itemize
+Ajuste de pitch minimizando el error de cuantización de frecuencias (supresión
+ de microtonos)
+\end_layout
+
+\begin_layout Itemize
+Conversión a formatio MIDI
+\end_layout
+
+\begin_layout Standard
+La tarea más sensible y vital para el funcionamiento del diagrama presentado
+ es la estimación del pitch, para la cual se ha implementado una versión
+ levemente modificada del algoritmo 
+\begin_inset Quotes eld
+\end_inset
+
+YIN
+\begin_inset Quotes erd
+\end_inset
+
+ propuesto por 
+\emph on
+Alain de Cheveigné
+\emph default
+ y 
+\emph on
+Hideki Kawahara 
+\emph default
+en su publicación 
+\begin_inset Quotes eld
+\end_inset
+
+
+\emph on
+YIN, a fundamental frequency estimator for speech and music
+\emph default
+
+\begin_inset Quotes erd
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Standard
+A continuación se explicará con detalle las técnicas empleadas para resolver
+ los cuatro puntos mencionados.
+\end_layout
+
+\begin_layout Subsection
+Determinación de 
+\emph on
+Voiced Segments
+\end_layout
+
+\begin_layout Standard
+Para la determinación de segmentos vocales y no vocales se ha utilizado
+ el estimador de energía short-time con las siguientes características:
+\begin_inset Float table
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="4" columns="2">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Cracterísticas
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Valor empleado
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Tipo de Ventana
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Hamming
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Tamaño de Ventana
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+20ms
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Overlap
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0%
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Características de la estimación con Energía Short Time
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+La elección del tipo de ventana radica principalmente en que Hamming tiene
+ un buen comportamiento en aplicaciones de procesamiento de voz.
+ 
+\end_layout
+
+\begin_layout Standard
+En cuanto al tamaño de la misma, se ha elegido 20ms para cumplir la condición
+ de estacionaridad de la voz, aunque para el caso de detección binaria de
+ presencia o ausencia de voz podrían haberse utilizado valores mayores o
+ menores a este y seguir teniendo un buen desempeño
+\end_layout
+
+\begin_layout Standard
+El overlap de 0% se elegió por la facilidad de implementación y cálculo
+ frente al resto de las opciones que hubiesen requerido una regla de decisión
+ adicional para decidir en intervalos superpuestos.
+\end_layout
+
+\begin_layout Standard
+Finalmente, la regla de decisión se tomo un umbral porcentual al valor máximo
+ de la energía de la señal para evitar que su performance sea altamente
+ dependiente del ruido ambiente.
+ Sin embargo, lo ideal sería contar con un microfono adicional para medir
+ dicho ruido y cancelarlo adaptativamente
+\end_layout
+
+\begin_layout Standard
+Pueden verse a continuación los resultados obtenidos al aplicarse sobre
+ un audio de prueba de una melodía con frecuentes intervalos de silencio
+ entre determinadas notas
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+S
+\begin_inset Graphics
+	filename /home/lucas/Electronics/Pitch Detect/src/Plots/STE.png
+	width 90line%
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Voiced Segments Detection Testing
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Detección de Notas
+\end_layout
+
+\begin_layout Standard
+Si bien con el método anterior se ha logrado detectar cuando hay o no un
+ locutor cantando, no resuelve el problema de poder determinar cuando inicia
+ y/o finaliza una nota.
+ 
+\end_layout
+
+\begin_layout Standard
+Para la detección de esta característica se ha optado por usar la derivada
+ de la estimación short-time de la energía.
+ Esta decisión se debe a que cada nota tiene una característica similar
+ a la del modelo ADSR (Attack, Decay, Sustain, Release) por lo cual, mediante
+ la detección de cambios bruscos de energía, se puede estimar cuando comienza
+ cada nota.
+\end_layout
+
+\begin_layout Standard
+A pesar de lo mencionado, no siempre la envolvente ADSR resulta tan clara
+ y depende fuertemente del fonema que la persona utilice para cantar las
+ notas.
+ En consecuencia, y para maximizar los resultados y la precisión del método,
+ se ha optado por solicitar al locutor/cantante de marque cada nota con
+ una 'T'.
+ Dado que los fonemas resultantes comenzarán con un sonido explosivo, la
+ derivada será elevada, facilitando la detección.
+\end_layout
+
+\begin_layout Standard
+A continuación se puede observar la estimación de picos analizado sobre
+ la misma melodía tarareada con diferentes fonemas de separación de las
+ notas.
+\end_layout
+
+\begin_layout Standard
+———————————————————–
+\end_layout
+
+\begin_layout Standard
+Como puede observarse, la división es más clara en el caso de la 'T'.
+\end_layout
+
+\begin_layout Subsection
+Detección de Pitch
+\end_layout
+
+\begin_layout Standard
+El bloque principal y piedra angular de este trabajo es aquel encargado
+ de estimar la fundamental de las notas cantadas.
+ Si bien existen diversos métodos (FFT, Cepstrum, Correlación, etc.) se ha
+ elegido el método de YIN que se explicará paso por paso a continuación.
+\end_layout
+
+\begin_layout Subsubsection
+Señales periódicas y Función diferencia
+\end_layout
+
+\begin_layout Standard
+En primer lugar, las señales periódicas cumplen la siguiente ecuación, siendo
+ 
+\begin_inset Formula $T_{o}$
+\end_inset
+
+ el período
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+f(n)-f(n+T_{o})=0
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+En consecuencia, también es cierta la siguiente expresión sobre una ventana
+ (si es lo suficientemente grande como para abarcar un período)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\Sigma(f(n)-f(n+T_{o}))^{2}=0
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Se construye entonces la función diferencia
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+d(\tau)=\Sigma(f(n)-f(n+\tau))^{2}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Dicha función puede ser optimizada para hallar el 
+\begin_inset Formula $\tau$
+\end_inset
+
+ que minice la función.
+ Sin embargo, debe tenerse en cuenta que hay infinitas soluciones por los
+ múltiplos del período de la señal (si se tomara una ventana de largo infinito).
+\end_layout
+
+\begin_layout Standard
+Si se expresa la función diferencia en función de la autocorrelación se
+ llega a que
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+d_{t}(\tau)=r_{t}(0)+r_{t+\tau}(0)-2r_{t}(\tau)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Experimentalmente se obtiene que la estimación de la frecuencia fundamental
+ de una señal mediante este método es entre 5 y 10 veces superior a la autocorre
+lación.
+ Esto se debe a que esta útlima tiene particularmente mal desempeño cuando
+ la señal tiene una frecuencia fundamental pero varía la amplitud, en cambio,
+ la función diferencia tiene dos términos de energía en dos tiempos diferentes.
+ Algunos estudios relevan que se debe a que la autocorrelación tiene tendencia
+ a elegir los picos de mayor orden.
+\end_layout
+
+\begin_layout Subsubsection
+Cummulative Normalized Difference Function
+\end_layout
+
+\begin_layout Standard
+Una característica de la función diferencia es que vale 0 al comienzo, por
+ lo cual, suele reemplazarse dicho valor por 1 para que no sea interpretado
+ como un mínimo.
+ Además, suele tomarse directamente un 
+\begin_inset Formula $\tau$
+\end_inset
+
+ inicial más elevado para ignorar frecuencias que no son de interés, motivo
+ por el cual también se elige un 
+\begin_inset Formula $\tau$
+\end_inset
+
+ máximo.
+ 
+\end_layout
+
+\begin_layout Standard
+Otra mejora que se hace a la función diferencia es dividir por la cantidad
+ de muestras tomadas en cada caso, lo cual ayuda a reducir los errores de
+ estimación por frecuencias mayores.
+\end_layout
+
+\begin_layout Standard
+Combinando ambos detalles, se obtiene la 
+\begin_inset Quotes eld
+\end_inset
+
+Cummulative Normalized Difference Function
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+d'(\tau)=\begin{cases}
+\begin{array}{c}
+1\\
+d(\tau)/\left[(\frac{1}{\tau})\Sigma_{j=1}^{\tau}d(j)\right]
+\end{array} & \begin{array}{c}
+\tau=0\\
+\tau\neq0
+\end{array}\end{cases}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Está será la función a minimizar en el algoritmo final iterando sobre valores
+ desde 
+\begin_inset Formula $\tau_{min}$
+\end_inset
+
+ hasta 
+\begin_inset Formula $\tau_{max}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Finalmente, para reducir aún más la probabilidad de detectar un pitch en
+ una octava incorrecta (octava inferior), no se busca el mínimo directamente
+ sino que se acepta el valor mínimo de 
+\begin_inset Formula $\tau$
+\end_inset
+
+ cuyo valor en la función diferencia sea menor a un threshold absoluto
+\end_layout
+
+\begin_layout Subsection
+Detección de Pitch : Analisis de Resultados
+\end_layout
+
+\begin_layout Standard
+El método de YIN tiene una gran cantidad de parámetros que pueden ser modificado
+ y ajustados para obtener distintos resultados.
+ Entre ellos encontramos:
+\end_layout
+
+\begin_layout Enumerate
+Tamaño de Ventana
+\end_layout
+
+\begin_layout Enumerate
+Overlap de Ventana
+\end_layout
+
+\begin_layout Enumerate
+Tamaño Mínimo de ventana
+\end_layout
+
+\begin_layout Enumerate
+Tamaño Máximo de ventana
+\end_layout
+
+\begin_layout Enumerate
+Threshold 
+\end_layout
+
+\begin_layout Standard
+Para encontrar una configuración aceptable, se han evaluado distintos casos
+ en los que se ha variado un solo parámetro y se han dejado al resto constantes
+ para observar la incidencia de la variación de dicho parámetro en el resultado
+ final.
+\end_layout
+
+\begin_layout Subsubsection
+Tamaño de Ventana
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename /home/lucas/Electronics/Pitch Detect/src/Plots/Size.png
+	width 90line%
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Comparación : Tamaño de Ventana
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+La ventana original des de aproximadamente 20~30ms y el resto varía en función
+ de la misma.
+ Como era de esperarse, las ventanas más grandes tienen un efecto más pasabajos
+ en el resultado y las más pequeñas son más sensibles a los cambios.
+ Para el modelo final se eligió la intermedia, ya que no son deseables las
+ variaciones muy pequeñas de pitch pero tampoco es útil enmascarar ciertos
+ cambios que si son deseados con una ventana muy grande
+\end_layout
+
+\begin_layout Subsubsection
+Overlap
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename /home/lucas/Electronics/Pitch Detect/src/Plots/Overlap.png
+	width 90line%
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Comparación : Overlap de Ventana
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Variando el overlap también se aprecia un efecto pasabajos a medida que
+ se aumenta su porcentaje, pero además, al tomar muestras más lejanas, se
+ 
+\begin_inset Quotes eld
+\end_inset
+
+anticipa
+\begin_inset Quotes erd
+\end_inset
+
+ a ciertos cambios y sufre un desfasaje respecto al resto.
+ Dado que esto no opera en tiempo real, esto perceptualmente no es un problema.
+\end_layout
+
+\begin_layout Subsubsection
+Threshold
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename /home/lucas/Electronics/Pitch Detect/src/Plots/TH_Exag.png
+	width 90line%
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Comparación : Threshold
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+En esta muestra se tomaron valors de Threshold exageradamente diferentes
+ para mostrar el efecto de este parámetro, ya que en clase se han estudiado
+ los efectos de overlap y tamaño de ventana pero este fenómeno, al ser novedoso,
+ es relevante mostrarlo con mayor detalle.
+\end_layout
+
+\begin_layout Standard
+Valores muy bajos de Threshold descartan casi la mayoría de las notas, ya
+ que ninguna cumple la condición.
+ Valores altos de threshold llevan a elegir picos de más alta frecuencia,
+ ya que se aceptan muestras con 
+\begin_inset Formula $\tau$
+\end_inset
+
+ muy bajo
+\end_layout
+
+\begin_layout Standard
+Finalmente, los valores intermedios son aquellos que matnienen un balance
+ entre la aceptación y el rechazo de las muestras.
+\end_layout
+
+\begin_layout Standard
+A continuación se muestra una comparación más fina entre valores de Threshold
+ más razonables.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename /home/lucas/Electronics/Pitch Detect/src/Plots/TH_Nice.png
+	width 90line%
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Comparación : Threshold
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Aquí ya no es tan notoria la diferencia, pero pueden observarse pocos valores
+ verdes (por descarte) , relativamente pocos valores azules (por haber sido
+ interpretados como frecuencias más altas) y muchos valores naranjas (balance
+ entre ambos).
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Subsection
+Scale Matching
+\end_layout
+
+\begin_layout Standard
+Un factor a tener en cuenta a la hora de sintetizar frecuencias en formato
+ MIDI es que el protocolo permite utilizar algunos tonos específicos y no
+ un espectro continuo de frecuencias de forma natural.
+ Esto es así porque existe la posibilidad de utilizar frecuencias fuera
+ de la grilla que el protocolo propone, pero , a parte de no ser facil trabajar
+ con ello, no aporta en gran medida a los resultados que pueden obtener
+ por el método planteado en este trabajo práctico.
+\end_layout
+
+\begin_layout Standard
+Sin embargo, es cierto que si a una persona se le solicita que cante una
+ melodía sin mostrarle previamente un tono de referencia, es poco probable
+ que comience en un tono perteneciente a la grilla MIDI (más aún, se podría
+ afirmar que matemáticamente la probabilidad de que ello ocurra es de 0).
+ 
+\end_layout
+
+\begin_layout Standard
+Para mitigar levemente este efecto, se ha desarrollado para este trabajo
+ un algoritmo que busca encasillar las notas cantadas por el locutor en
+ la escala cromática perteneciente a la grilla MIDI con el menor 
+\begin_inset Quotes eld
+\end_inset
+
+error de cuantización
+\begin_inset Quotes erd
+\end_inset
+
+ posible (ya que en definitiva no deja de ser una cuantización en frecuencia).
+\end_layout
+
+\begin_layout Standard
+Si bien el método fue implementado correctamente y se ha incluido en la
+ versión definitiva, la diferencia perceptual de aplicar esta corrección
+ no es de elevada magnitud
+\end_layout
+
+\end_body
+\end_document
