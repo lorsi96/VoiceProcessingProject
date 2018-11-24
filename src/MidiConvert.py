@@ -26,3 +26,23 @@ def to_midi(midinotes):
 
     with open("./MIDIS/Test.mid", "wb") as output_file:
         MyMIDI.writeFile(output_file)
+
+
+def to_midi2(ev_list):
+    # MIDI note number
+    track = 0
+    channel = 0
+    time = 0   # In beats
+    duration = 1/16   # In beats
+    tempo = 120.0  # In BPM
+    volume = 100  # 0-127, as per the MIDI standard
+    MyMIDI = MIDIFile(1, deinterleave=True)
+    MyMIDI.addTempo(track, time, tempo)
+    time = ev_list[0]['duration'] / 0.5
+    for element in ev_list:
+        duration = element['duration'] / 0.5
+        MyMIDI.addNote(
+            track, channel, element['pitch'], time, duration, volume)
+        time += duration
+    with open("./MIDIS/Somethin.mid", "wb") as output_file:
+        MyMIDI.writeFile(output_file)

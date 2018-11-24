@@ -1,9 +1,11 @@
 import numpy as np
-class Yin:  
+
+
+class Yin:
     def __init__(self):
         return
-    
-    def diff(self,x,tau_max):
+
+    def diff(self, x, tau_max):
         """
         --------------------------------------
         DESCRIPTION:
@@ -24,12 +26,13 @@ class Yin:
         size = w + tau_max
         p2 = (size // 32).bit_length()
         nice_numbers = (16, 18, 20, 24, 25, 27, 30, 32)
-        size_pad = min(x * 2 ** p2 for x in nice_numbers if x * 2 ** p2 >= size)
+        size_pad = min(
+            x * 2 ** p2 for x in nice_numbers if x * 2 ** p2 >= size)
         fc = np.fft.rfft(x, size_pad)
         conv = np.fft.irfft(fc * fc.conjugate())[:tau_max]
         return x_cumsum[w:w - tau_max:-1] + x_cumsum[w] - x_cumsum[:tau_max] - 2 * conv
 
-    def cmndf(self,df):
+    def cmndf(self, df):
         """
         -------------------------------------------------------------
         DESCRIPTION:
@@ -42,10 +45,11 @@ class Yin:
         - return : cumulative mean normalized difference function 
         -------------------------------------------------------------
         """
-        cmndf = df[1:] * range(1, len(df)) / np.cumsum(df[1:]).astype(float) #scipy method
+        cmndf = df[1:] * range(1, len(df)) / \
+            np.cumsum(df[1:]).astype(float)  # scipy method
         return np.insert(cmndf, 0, 1)
-    
-    def get_pitch(self,cmdf, tau_min, tau_max, harmo_th=0.1):
+
+    def get_pitch(self, cmdf, tau_min, tau_max, harmo_th=0.1):
         """
         ---------------------------------------------------------------------------------------------
         DESCRIPTION:
@@ -67,8 +71,8 @@ class Yin:
                     tau += 1
                 return tau
             tau += 1
-        return 0    # if unvoiced
-    
+        return 0    # if unvoice
+
     def yin(self, sig, sr, w_len=512, w_step=256, f0_min=100, f0_max=500, harmo_thresh=0.1):
         """
         --------------------------------------------------------------------------------------------------------
@@ -94,7 +98,8 @@ class Yin:
         tau_min = int(sr / f0_max)
         tau_max = int(sr / f0_min)
 
-        timeScale = range(0, len(sig) - w_len, w_step)  # time values for each analysis window
+        # time values for each analysis window
+        timeScale = range(0, len(sig) - w_len, w_step)
         times = [t/float(sr) for t in timeScale]
         frames = [sig[t:t + w_len] for t in timeScale]
 
@@ -104,23 +109,49 @@ class Yin:
 
         for i, frame in enumerate(frames):
 
-            #Compute YIN
+            # Compute YIN
             df = self.diff(frame, tau_max)
             cmdf = self.cmndf(df)
             p = self.get_pitch(cmdf, tau_min, tau_max, harmo_thresh)
 
-            #Get results
-            if np.argmin(cmdf)>tau_min:
+            # Get results
+            if np.argmin(cmdf) > tau_min:
                 argmins[i] = float(sr / np.argmin(cmdf))
-            if p != 0: # A pitch was found
+            if p != 0:  # A pitch was found
                 pitches[i] = float(sr / p)
                 harmonic_rates[i] = cmdf[p]
-            else: # No pitch, but we compute a value of the harmonic rate
+            else:  # No pitch, but we compute a value of the harmonic rate
                 harmonic_rates[i] = min(cmdf)
 
         return pitches, harmonic_rates, argmins, times
 
+    def yin2(self, frame, sr=48000, w_len=512, w_step=256, f0_min=100, f0_max=500, harmo_thresh=0.4):
+        """
+        --------------------------------------------------------------------------------------------------------
+        DESCRIPTION
+        -Compute the Yin Algorithm. Return fundamental frequency and harmonic rate.
+        --------------------------------------------------------------------------------------------------------
+        INPUT
+        -sig: Audio signal (list of float)
+        -sr: sampling rate (int)
+        -w_len: size of the analysis window (samples)
+        -w_step: overlap samples between two consecutives windows (samples)
+        -f0_min: Minimum fundamental frequency that can be detected (hertz)
+        -f0_max: Maximum fundamental frequency that can be detected (hertz)
+        -harmo_tresh: Threshold of detection
+        --------------------------------------------------------------------------------------------------------
+        OUTPUT
+        -pitches: list of fundamental frequencies,
+        -harmonic_rates: list of harmonic rate values for each fundamental frequency value (= confidence value)
+        -argmins: minimums of the Cumulative Mean Normalized DifferenceFunction
+        -times: list of time of each estimation
+        --------------------------------------------------------------------------------------------------------
+        """
+        tau_min = int(sr / f0_max)
+        tau_max = int(sr / f0_min)
 
-
-    
-
+        # time values for each analysis window
+        df = self.diff(frame, tau_max)
+        cmdf = self.cmndf(df)
+        p = self.get_pitch(cmdf, tau_min, tau_max, harmo_thresh)
+        return p
