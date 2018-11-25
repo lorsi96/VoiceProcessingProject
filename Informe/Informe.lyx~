@@ -98,9 +98,10 @@ a capella
 \begin_inset Quotes erd
 \end_inset
 
- para su posterior conversión a formato midi con el fin de poder no solo
- transcribirlas musicalmente, sino también reproducirlas con diversos instrument
-os musicales.
+ para su posterior conversión a formato midi.
+ Esto permite no solo transcribir ideas musicales facilmente (con un pequeño
+ requisito mínimo de afinación por parte del locutor), sino también reproducirla
+s con diversos instrumentos.
 \end_layout
 
 \begin_layout Standard
@@ -163,12 +164,16 @@ Ajuste de pitch minimizando el error de cuantización de frecuencias (supresión
 \end_layout
 
 \begin_layout Itemize
+Detección de Notas (ADSR)
+\end_layout
+
+\begin_layout Itemize
 Conversión a formatio MIDI
 \end_layout
 
 \begin_layout Standard
 La tarea más sensible y vital para el funcionamiento del diagrama presentado
- es la estimación del pitch, para la cual se ha implementado una versión
+ es la estimación del pitch, para lo cual se ha implementado una versión
  levemente modificada del algoritmo 
 \begin_inset Quotes eld
 \end_inset
@@ -201,8 +206,8 @@ YIN, a fundamental frequency estimator for speech and music
 \end_layout
 
 \begin_layout Standard
-A continuación se explicará con detalle las técnicas empleadas para resolver
- los cuatro puntos mencionados.
+A continuación se explicarán con detalle las técnicas empleadas para resolver
+ los puntos mencionados.
 \end_layout
 
 \begin_layout Subsection
@@ -351,21 +356,20 @@ En cuanto al tamaño de la misma, se ha elegido 20ms para cumplir la condición
 \begin_layout Standard
 El overlap de 0% se elegió por la facilidad de implementación y cálculo
  frente al resto de las opciones que hubiesen requerido una regla de decisión
- adicional para decidir en intervalos superpuestos.
+ adicional para en intervalos superpuestos.
 \end_layout
 
 \begin_layout Standard
-Finalmente, la regla de decisión se tomo un umbral porcentual al valor máximo
- de la energía de la señal para evitar que su performance sea altamente
- dependiente del ruido ambiente.
+Finalmente, para la elección binaria de voz/ no voz, se tomó un umbral porcentua
+l al valor máximo de la energía de la señal para evitar que su performance
+ sea altamente dependiente del nivel del ruido ambiente.
  Sin embargo, lo ideal sería contar con un microfono adicional para medir
- dicho ruido y cancelarlo adaptativamente
+ dicho ruido y cancelarlo adaptativamente.
 \end_layout
 
 \begin_layout Standard
-Pueden verse a continuación los resultados obtenidos al aplicarse sobre
- un audio de prueba de una melodía con frecuentes intervalos de silencio
- entre determinadas notas
+Pueden verse a continuación los resultados obtenidos al aplicarse lo recientemen
+te explicado sobre un audio de prueba con frecuentes intervalos de silencio
 \end_layout
 
 \begin_layout Standard
@@ -379,7 +383,7 @@ status open
 \align center
 S
 \begin_inset Graphics
-	filename /home/lucas/Electronics/Pitch Detect/src/Plots/STE.png
+	filename /home/lucas/Electronics/VoiceProcessingProject/src/Plots/STE.png
 	width 90line%
 
 \end_inset
@@ -399,51 +403,6 @@ Voiced Segments Detection Testing
 \end_inset
 
 
-\end_layout
-
-\begin_layout Subsection
-Detección de Notas
-\end_layout
-
-\begin_layout Standard
-Si bien con el método anterior se ha logrado detectar cuando hay o no un
- locutor cantando, no resuelve el problema de poder determinar cuando inicia
- y/o finaliza una nota.
- 
-\end_layout
-
-\begin_layout Standard
-Para la detección de esta característica se ha optado por usar la derivada
- de la estimación short-time de la energía.
- Esta decisión se debe a que cada nota tiene una característica similar
- a la del modelo ADSR (Attack, Decay, Sustain, Release) por lo cual, mediante
- la detección de cambios bruscos de energía, se puede estimar cuando comienza
- cada nota.
-\end_layout
-
-\begin_layout Standard
-A pesar de lo mencionado, no siempre la envolvente ADSR resulta tan clara
- y depende fuertemente del fonema que la persona utilice para cantar las
- notas.
- En consecuencia, y para maximizar los resultados y la precisión del método,
- se ha optado por solicitar al locutor/cantante de marque cada nota con
- una 'T'.
- Dado que los fonemas resultantes comenzarán con un sonido explosivo, la
- derivada será elevada, facilitando la detección.
-\end_layout
-
-\begin_layout Standard
-A continuación se puede observar la estimación de picos analizado sobre
- la misma melodía tarareada con diferentes fonemas de separación de las
- notas.
-\end_layout
-
-\begin_layout Standard
-———————————————————–
-\end_layout
-
-\begin_layout Standard
-Como puede observarse, la división es más clara en el caso de la 'T'.
 \end_layout
 
 \begin_layout Subsection
@@ -517,7 +476,7 @@ Dicha función puede ser optimizada para hallar el
 \begin_inset Formula $\tau$
 \end_inset
 
- que minice la función.
+ que minimice la función.
  Sin embargo, debe tenerse en cuenta que hay infinitas soluciones por los
  múltiplos del período de la señal (si se tomara una ventana de largo infinito).
 \end_layout
@@ -572,8 +531,7 @@ Una característica de la función diferencia es que vale 0 al comienzo, por
 
 \begin_layout Standard
 Otra mejora que se hace a la función diferencia es dividir por la cantidad
- de muestras tomadas en cada caso, lo cual ayuda a reducir los errores de
- estimación por frecuencias mayores.
+ de muestras tomadas en cada caso, lo cual ayuda a reducir errores de estimación.
 \end_layout
 
 \begin_layout Standard
@@ -635,7 +593,7 @@ Detección de Pitch : Analisis de Resultados
 
 \begin_layout Standard
 El método de YIN tiene una gran cantidad de parámetros que pueden ser modificado
- y ajustados para obtener distintos resultados.
+s y ajustados para obtener distintos resultados.
  Entre ellos encontramos:
 \end_layout
 
@@ -680,7 +638,7 @@ status open
 \begin_layout Plain Layout
 \align center
 \begin_inset Graphics
-	filename /home/lucas/Electronics/Pitch Detect/src/Plots/Size.png
+	filename /home/lucas/Electronics/VoiceProcessingProject/src/Plots/Size.png
 	width 90line%
 
 \end_inset
@@ -726,7 +684,7 @@ status open
 \begin_layout Plain Layout
 \align center
 \begin_inset Graphics
-	filename /home/lucas/Electronics/Pitch Detect/src/Plots/Overlap.png
+	filename /home/lucas/Electronics/VoiceProcessingProject/src/Plots/Overlap.png
 	width 90line%
 
 \end_inset
@@ -777,7 +735,7 @@ status open
 \begin_layout Plain Layout
 \align center
 \begin_inset Graphics
-	filename /home/lucas/Electronics/Pitch Detect/src/Plots/TH_Exag.png
+	filename /home/lucas/Electronics/VoiceProcessingProject/src/Plots/TH_Exag.png
 	width 90line%
 
 \end_inset
@@ -837,7 +795,7 @@ status open
 \begin_layout Plain Layout
 \align center
 \begin_inset Graphics
-	filename /home/lucas/Electronics/Pitch Detect/src/Plots/TH_Nice.png
+	filename /home/lucas/Electronics/VoiceProcessingProject/src/Plots/TH_Nice.png
 	width 90line%
 
 \end_inset
@@ -863,7 +821,11 @@ Comparación : Threshold
 Aquí ya no es tan notoria la diferencia, pero pueden observarse pocos valores
  verdes (por descarte) , relativamente pocos valores azules (por haber sido
  interpretados como frecuencias más altas) y muchos valores naranjas (balance
- entre ambos)
+ entre ambos).
+\end_layout
+
+\begin_layout Standard
+
 \end_layout
 
 \begin_layout Subsection
@@ -905,7 +867,148 @@ error de cuantización
 \begin_layout Standard
 Si bien el método fue implementado correctamente y se ha incluido en la
  versión definitiva, la diferencia perceptual de aplicar esta corrección
- no es de elevada magnitud
+ no es de elevada magnitud.
+\end_layout
+
+\begin_layout Subsection
+Detección de Notas
+\end_layout
+
+\begin_layout Standard
+Si bien con el método anterior se ha logrado detectar cuando hay o no un
+ locutor cantando, no resuelve el problema de poder determinar cuando inicia
+ y/o finaliza una nota.
+ 
+\end_layout
+
+\begin_layout Standard
+Para la detección de esta característica se ha optado en un principio por
+ usar la derivada de la estimación short-time de la energía.
+ Esta decisión se debe a que cada nota tiene una característica similar
+ a la del modelo ADSR (Attack, Decay, Sustain, Release) por lo cual, mediante
+ la detección de cambios bruscos de energía, se puede estimar cuando comienza
+ cada nota.
+\end_layout
+
+\begin_layout Standard
+A pesar de lo mencionado, no siempre la envolvente ADSR resulta tan clara
+ y depende fuertemente del fonema que la persona utilice para cantar las
+ notas.
+ En consecuencia, y para maximizar los resultados y la precisión del método,
+ se ha optado por solicitar al locutor/cantante de marque cada nota con
+ una 'T'.
+ Dado que los fonemas resultantes comenzarán con un sonido explosivo, la
+ derivada será elevada, facilitando la detección.
+\end_layout
+
+\begin_layout Standard
+Sin embargo, el algoritmo de YIN también tiene un muy buen comportamiento
+ para poder determinar los comienzos/inicios de las notas (aunque se pierde
+ toda información de la energía).
+ Por ello, se ha optado por utilizar los resultados de la aplicación de
+ este algoritmo también para la detección de notas
+\end_layout
+
+\begin_layout Standard
+A continuación se puede observar la estimación de picos analizado sobre
+ la misma melodía tarareada con diferentes fonemas de separación de las
+ notas (Resultados del algoritmo de YIN)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename /home/lucas/Electronics/VoiceProcessingProject/src/Plots/N.png
+	width 90line%
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Notas separadas por 'N'
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename /home/lucas/Electronics/VoiceProcessingProject/src/Plots/T.png
+	width 90line%
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Notas separadas por 'T'
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Como puede observarse, la división es más clara en el caso de la 'T', mientras
+ que con la 'N' se detecta como un continuo.
+\end_layout
+
+\begin_layout Subsection
+Conclusión
+\end_layout
+
+\begin_layout Standard
+De los métodos utilizados se ha aprendido/notado lo siguiente:
+\end_layout
+
+\begin_layout Standard
+- El método de Short-Time-Energy es muy útil para todo aquel análisis/detección
+ que tenga correlación con la energía de la señal, ya que permite facilmente
+ filtrar altas frecuencias para estudiar envolventes descartando oscilaciones
+ que no son de interés
+\end_layout
+
+\begin_layout Standard
+- El método de YIN para estimación de frecuencias es muy bueno, aunque muchas
+ veces detecta la octava erroneamente.
+ Sin embargo, para la detección de melodías (donde lo importante es la distancia
+ relativa en frecuencia de las notas) es sumamente útil.
+\end_layout
+
+\begin_layout Standard
+- Dicho método además podía utilizarse (como se ha hecho en este trabajo)
+ para la detección de voz/ no voz por lo explicado en los incisos anteriores
 \end_layout
 
 \end_body

@@ -17,7 +17,7 @@ run_scripts = [1, 2, 3]
 ####################################################################################
 if 1 in run_scripts:
     fs = 48000
-    duration = 15
+    duration = 5
     rec_load = True
     hear = False
     if rec_load:
@@ -50,38 +50,12 @@ if 3 in run_scripts:
     a = sm.caster(lst)
     lst = list(a[0]/a[1]*440)
     time_vect = np.linspace(0, len(silenced_rec)/48, len(lst))
-    plt.plot(lst)
+    mc.yin_2_midi(lst)
+    plt.title('YIN Pitch Estimation'), plt.plot(
+        time_vect, lst, label='T')
+    plt.xlabel('Time [ms]'), plt.ylabel('Frequency [Hz]')
+    plt.grid(), plt.legend()
     plt.show()
-    last_ev = 0
-    note = False
-    time = 0
-    evs = []
-    for ind in range(len(lst)):
-        try:
-            if lst[ind-1]*lst[ind] == 0 and (lst[ind-1] != 0 or lst[ind] != 0):
-                evs.append({
-                    'sample': ind,
-                    'duration': time - last_ev,
-                    'pitch':  0
-                })
-                last_ev = time
-        except:
-            pass
-        time = ind*slen/48000
-    for ind, element in enumerate(evs):
-        try:
-            pitch = most_common(
-                lst[(element['sample']):(evs[ind+1]['sample'])])
-            element['pitch'] = int(
-                round(12*np.log2(pitch/440) + 69))+24 if pitch > 0 else 0
-        except:
-            pass
-    mc.to_midi2(evs)
-    # plt.title('YIN Pitch Estimation'), plt.plot(
-    #    time_vect, lst, 'o', label = 'Original')
-    # plt.xlabel('Time [ms]'), plt.ylabel('Frequency [Hz]')
-    # plt.grid(), plt.legend()
-
     '''
     lst = p.yin(silenced_rec, 48000, int(2048/4),
                 int(1024/4), 100, 2000, .4)[0]
